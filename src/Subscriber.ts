@@ -9,20 +9,24 @@ export class Subscriber<T extends Message> extends EventEmitter {
   public compression : string = "none";
   public throttle_rate : number = 0;
   public queue_length : number = 0;
-  private callback : (msg : T) => void;
+  private callback : (msg : any) => void;
 
   public constructor(
     rosConnection : ROSConnection, 
-    topicName : string, callback : (msg : T) => void, 
+    topicName : string, callback : (msg : any) => void, 
     compression : string = "none", 
     throttle_rate : number = 0, 
-    queue_length : number = 0) {
+    queue_length : number = 100) {
     super();
     this.rosConnection = rosConnection;
     this.topicName = topicName;
+    this.queue_length = queue_length;
+    this.throttle_rate = throttle_rate;
+    this.compression = compression;
+
     this.callback = callback;
 
-    this.on("message", this.translateCallback);
+    this.on("message", this.callback);
 
 }
 
@@ -50,13 +54,4 @@ public subscribe() {
     this.rosConnection.transport?.send(bm);
   }
 
-  private translateCallback(rawMsg : string): void {
-
-    // create a specific message and load parameters from the passed in args.
-    // then call the callback with the message.
-  
-    let msg = (new Object() as T);
-    Object.assign(msg, JSON.parse(rawMsg));
-    this.callback(msg);
-  }
 }

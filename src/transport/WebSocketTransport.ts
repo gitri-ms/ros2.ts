@@ -8,10 +8,7 @@ import { ITransport } from "./ITransport";
 export class WebSocketTransport extends EventEmitter implements ITransport {
   public wsConnection : WebSocket | undefined = undefined;
   public url : string = "";
-  private _untypedOn = this.on
-  private _untypedEmit = this.emit
-  public on = <K extends keyof ITransport>(event: K, listener: ITransport[K]): this => this._untypedOn(event, listener)
-  public emit = <K extends keyof ITransport>(event: K, ...args: Parameters<ITransport[K]>): boolean => this._untypedEmit(event, ...args)
+
   'connected': () => void;
   'disconnected': () => void;
   'onMessage': (msg: any) => void;
@@ -38,9 +35,6 @@ export class WebSocketTransport extends EventEmitter implements ITransport {
       if (message.data instanceof ArrayBuffer) {
         var decoded = CBOR.decode(message.data);
         this.emit("onMessage", decoded);
-      } else if (message.data instanceof String) {
-        var decoded = JSON.parse(message.data as string);
-        this.emit("onMessage", decoded);
       } else if (message.data instanceof Blob) {
         var self = this;
         var reader = new FileReader();
@@ -49,7 +43,10 @@ export class WebSocketTransport extends EventEmitter implements ITransport {
           self.emit("onMessage", decoded);
         }
         reader.readAsArrayBuffer(message.data);
-      }
+      } else {
+        var decoded = JSON.parse(message.data as string);
+        this.emit("onMessage", decoded);
+      } 
     }    
   }
 

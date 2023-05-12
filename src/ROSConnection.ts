@@ -11,6 +11,9 @@ export class ROSConnection extends EventEmitter {
   public subscriptions: Map<string, Subscriber<any>[]> = new Map<string, Subscriber<any>[]>();
   private id_counter: number = 0;
 
+  'connected': () => void;
+  'disconnected': () => void;
+
 
   public createTrackingId(prefix: string, suffix: string) {
     return prefix + ":" + suffix + ":" + ++this.id_counter;
@@ -20,9 +23,18 @@ export class ROSConnection extends EventEmitter {
     this.setMaxListeners(0);
     
     this.transport = transport;
-    this.transport.onMessage = (msg : any) => {
+    this.transport.on('onMessage', (msg: any) => {
       this.processMessage(msg);
-    }
+    });
+
+    this.transport.on('connected', () => {
+      this.emit("connected");
+    });
+
+    this.transport.on('disconnected', () => {
+      this.emit("disconnected");
+    });
+
 
     this.transport.connect();
   }
