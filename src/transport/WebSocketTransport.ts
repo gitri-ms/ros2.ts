@@ -1,12 +1,12 @@
 import EventEmitter from "events";
-import {w3cwebsocket } from "websocket"
+import WebSocket from "ws";
 import http = require('http');
 import CBOR from "cbor"
 import { BSON } from "bson";
 import { ITransport } from "./ITransport";
 
 export class WebSocketTransport extends EventEmitter implements ITransport {
-  public wsConnection : w3cwebsocket | undefined = undefined;
+  public wsConnection : WebSocket | undefined = undefined;
   public url : string = "";
   private _untypedOn = this.on
   private _untypedEmit = this.emit
@@ -23,7 +23,8 @@ export class WebSocketTransport extends EventEmitter implements ITransport {
   }
 
   public connect() {
-    this.wsConnection = new w3cwebsocket(this.url, "rosbridge-protocol");
+    this.wsConnection = new WebSocket(this.url);
+    this.wsConnection.binaryType = 'arraybuffer';
 
     this.wsConnection.onopen = () => {
       this.emit("connected");
@@ -51,6 +52,19 @@ export class WebSocketTransport extends EventEmitter implements ITransport {
       }
     }    
   }
+
+  public send(message: any) {
+    if (this.wsConnection) {
+      if (message instanceof ArrayBuffer || message instanceof Uint8Array || message instanceof Blob || message instanceof Buffer) {
+        this.wsConnection.send(message);
+      } else if (message instanceof String) {
+        this.wsConnection.send(message);
+      } else {
+        this.wsConnection.send(JSON.stringify(message));
+      }
+    }
+  }
+
 
   public dispose() {
     this.wsConnection?.close();
