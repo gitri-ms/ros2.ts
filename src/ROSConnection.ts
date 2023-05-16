@@ -4,7 +4,10 @@ import EventEmitter from "events";
 import { ITransport } from "./transport/ITransport";
 import { Publisher } from "./Publisher";
 import { Subscriber } from "./Subscriber";
-import { Message } from "./Message";
+import { Message } from "./std_msgs/Message";
+import { Service } from "./Service";
+import { ServiceRequest } from "./std_srvs/ServiceRequest";
+import { ServiceResponse } from "./std_srvs/ServiceResponse";
 
 export class ROSConnection extends EventEmitter {
   public transport: ITransport | undefined;
@@ -39,6 +42,14 @@ export class ROSConnection extends EventEmitter {
     this.transport.connect();
   }
 
+  public disconnect() {
+    this.transport?.disconnect();
+  }
+
+  public create_service<T extends ServiceRequest, R extends ServiceResponse>(service : string) : Service<T, R> {
+    return new Service<T, R>(this, service);
+  }
+
   public create_publisher<T extends Message>(topic : string) : Publisher<T> {
     return new Publisher<T>(this, topic);
   }
@@ -63,10 +74,10 @@ export class ROSConnection extends EventEmitter {
         });
         break;
       case "service_response":
+        this.emit(message.id, message);
         break;
       case "call_service":
-        break;
-      case "service_request":
+        this.emit(message.service, message);
         break;
       case "status":
         console.log("Status?: " + JSON.stringify(message));

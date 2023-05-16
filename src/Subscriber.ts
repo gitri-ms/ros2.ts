@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import { ROSConnection } from "./ROSConnection";
 import { BridgeMessage } from "./BridgeMessage";
-import { Message } from "./Message";
+import { Message } from "./std_msgs/Message";
 
 export class Subscriber<T extends Message> extends EventEmitter {
   private rosConnection : ROSConnection;
@@ -9,7 +9,7 @@ export class Subscriber<T extends Message> extends EventEmitter {
   public compression : string = "none";
   public throttle_rate : number = 0;
   public queue_length : number = 0;
-  private callback : (msg : any) => void;
+  private callback : (msg : T) => void;
 
   public constructor(
     rosConnection : ROSConnection, 
@@ -26,7 +26,7 @@ export class Subscriber<T extends Message> extends EventEmitter {
 
     this.callback = callback;
 
-    this.on("message", this.callback);
+    this.on("message", this.processMessage);
 
 }
 
@@ -52,6 +52,10 @@ public subscribe() {
     bm.topic = this.topicName;
 
     this.rosConnection.transport?.send(bm);
+  }
+
+  private processMessage(message: any) {
+    this.callback(message);
   }
 
 }

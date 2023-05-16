@@ -1,6 +1,8 @@
 import EventEmitter from "events";
 import { ITransport } from "../src/transport/ITransport";
-
+import { plainToClass } from 'class-transformer';
+import { BridgeMessage } from "../src/BridgeMessage";
+ 
 export class LoopbackTransport extends EventEmitter implements ITransport {
   public onMessage: (msg: any) => void = (msg: any) => {};
   'connected': () => void;
@@ -13,9 +15,12 @@ export class LoopbackTransport extends EventEmitter implements ITransport {
   public connect() {
     this.emit("connected");
   }
+  public disconnect() {
+    this.emit("disconnected");
+  }
 
   public send(message: any) {
-    this.onMessage(message);
+    this.emit("onMessage", message);
   }
 
   public close() {

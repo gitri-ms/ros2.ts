@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import { ROSConnection } from "./ROSConnection";
 import { BridgeMessage } from "./BridgeMessage";
-import { Message } from "./Message";
+import { Message } from "./std_msgs/Message";
 
 export class Publisher<T extends Message> {
   private rosConnection : ROSConnection;
@@ -44,7 +44,7 @@ export class Publisher<T extends Message> {
       bm.op = "publish";
       bm.id = this.rosConnection.createTrackingId("publish", this.topicName);
       bm.topic = this.topicName;
-      bm.msg = JSON.stringify(message);
+      bm.msg = message;
 
       this.rosConnection.transport.send(bm);
     }

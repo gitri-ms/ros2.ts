@@ -50,6 +50,11 @@ export class WebSocketTransport extends EventEmitter implements ITransport {
     }    
   }
 
+  public disconnect() {
+    this.emit("disconnected");
+    this.wsConnection?.close();
+  }
+
   public send(message: any) {
     if (this.wsConnection) {
       if (message instanceof ArrayBuffer || message instanceof Uint8Array || message instanceof Blob || message instanceof Buffer) {
