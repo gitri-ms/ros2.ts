@@ -8,6 +8,10 @@ import { Message } from "./std_msgs/Message";
 import { Service } from "./Service";
 import { ServiceRequest } from "./std_srvs/ServiceRequest";
 import { ServiceResponse } from "./std_srvs/ServiceResponse";
+import { ActionClient } from "./action/ActionClient";
+import { Goal } from "./action/Goal";
+import { Feedback } from "./action/Feedback";
+import { Result } from "./action/Result";
 
 export class ROSConnection extends EventEmitter {
   public transport: ITransport | undefined;
@@ -62,6 +66,10 @@ export class ROSConnection extends EventEmitter {
       this.subscriptions.set(topic, [s]);
     }
     return s;
+  }
+
+  public create_action_client<G extends Goal, F extends Feedback, R extends Result>(action : string) : ActionClient<G, F, R> {
+    return new ActionClient<G, F, R>(this, action);
   }
 
   private processMessage(message: any) {

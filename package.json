@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/polyhobbyist/ros2.ts.git"
   },
-  "description": "Typescript interface for ROS 2 Web Bridge",
+  "description": "Typescript interface for ROS 2 which implements the ROS Bridge Protocol",
   "version": "0.0.3",
   "main": "dist/ros.js",
   "types": "types/src/ros.d.ts",
@@ -45,7 +45,6 @@
   "author": "lou@polyhobbyist.com",
   "license": "MIT",
   "dependencies": {
-    "@types/cbor": "^6.0.0",
     "@types/xml2js": "^0.4.11",
     "bson": "^5.2.0",
     "buffer": "^6.0.3",
